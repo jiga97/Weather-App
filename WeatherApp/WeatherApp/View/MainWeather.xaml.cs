@@ -66,6 +66,24 @@ namespace WeatherApp.View
 
         }
 
+        //gets background for the app using a api
+        private async void GetBackground()
+        {
+            var url = $"https://api.pexels.com/v1/search?query={Location}&per_page=15&page=1";
+            //api key for pexels 
+            var result = await CallingApi.Get(url, "563492ad6f917000010000019b48e46cdf5a4589a6a3b5cf048cd71e");
+
+            if (result.Successful)
+            {
+                var imageInfo = JsonConvert.DeserializeObject<BackgroundInfo>(result.Response);
+                if(imageInfo !=  null && imageInfo.photos.Length > 0)
+                {
+                    //randoms image everytime
+                    bgImg.Source = ImageSource.FromUri(new Uri(imageInfo.photos[new Random().Next(0, imageInfo.photos.Length - 1)].src.medium));
+                }
+            }
+        }
+
         private async void GetWeatherInfo()
         {
             var url = $"http://api.openweathermap.org/data/2.5/weather?q={Location}&appid=2f2f3c09845d9e9d7f35bd77245ac92e&units=metric";
@@ -89,6 +107,7 @@ namespace WeatherApp.View
                     dateTxt.Text = dt.ToString("dddd, MMM dd").ToUpper();
 
                     GetWeatherForecast();
+                    GetBackground();
                 }
                 catch (Exception e)
                 {
